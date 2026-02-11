@@ -1,7 +1,6 @@
 # Kafka CLI Tool
 
-[![Build and Release](https://github.com/USERNAME/REPO_NAME/actions/workflows/build.yml/badge.svg)](https://github.com/USERNAME/REPO_NAME/actions/workflows/build.yml)
-
+![Build and Release](https://github.com/zateckar/kafka-test/workflows/build.yml/badge.svg)
 
 A command-line application for testing Kafka brokers with mutual TLS (mTLS) authentication. Built in C using the librdkafka library.
 
