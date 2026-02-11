@@ -1,0 +1,32 @@
+# Build output
+build/
+dist/
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Compiled objects
+*.o
+*.obj
+*.exe
+
+# Certificates (sensitive)
+certs/*.pem
+certs/*.key
+certs/*.crt
+
+# Backup files
+*.bak
+*.tmp
+*~
+
+# OS files
+.DS_Store
+Thumbs.db

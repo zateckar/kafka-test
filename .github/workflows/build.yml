@@ -1,0 +1,97 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+env:
+  SOLUTION_NAME: kafka-cli
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup MinGW
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >-
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-binutils
+          mingw-w64-x86_64-make
+
+    - name: Build Application
+      shell: msys2 {0}
+      run: |
+        ./build.bat
+
+    - name: Package Application
+      shell: powershell
+      run: |
+        # Create distribution directory
+        New-Item -ItemType Directory -Force -Path "dist\KafkaCLI"
+        
+        # Copy executable
+        Copy-Item "build\kafka_cli.exe" "dist\KafkaCLI\"
+        
+        # Copy required DLLs
+        Copy-Item "build\*.dll" "dist\KafkaCLI\"
+        
+        # Copy configuration file
+        Copy-Item "kafka_config.ini" "dist\KafkaCLI\"
+        
+        # Copy certificates
+        New-Item -ItemType Directory -Force -Path "dist\KafkaCLI\certs"
+        Copy-Item "certs\*" "dist\KafkaCLI\certs\"
+        
+        # Copy license file if exists
+        if (Test-Path "LICENSE") {
+            Copy-Item "LICENSE" "dist\KafkaCLI\"
+        }
+        
+        # Copy readme if exists
+        if (Test-Path "README.md") {
+            Copy-Item "README.md" "dist\KafkaCLI\"
+        }
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: KafkaCLI
+        path: dist/KafkaCLI/**
+        retention-days: 30
+
+    - name: Create ZIP Archive
+      shell: powershell
+      run: |
+        Compress-Archive -Path "dist\KafkaCLI\*" -DestinationPath "dist\KafkaCLI.zip"
+
+    - name: Get current date
+      id: date
+      shell: powershell
+      run: |
+        $date = Get-Date -Format "yyyyMMdd-HHmmss"
+        echo "date=$date" >> $env:GITHUB_OUTPUT
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('build-{0}', steps.date.outputs.date) }}
+        files: |
+          dist/KafkaCLI.zip
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
