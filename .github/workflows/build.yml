@@ -52,19 +52,10 @@ jobs:
         
         # Copy configuration file
         Copy-Item "kafka_config.ini" "dist\KafkaCLI\"
-        
-        # Copy certificates
-        New-Item -ItemType Directory -Force -Path "dist\KafkaCLI\certs"
-        Copy-Item "certs\*" "dist\KafkaCLI\certs\"
-        
+                
         # Copy license file if exists
         if (Test-Path "LICENSE") {
             Copy-Item "LICENSE" "dist\KafkaCLI\"
-        }
-        
-        # Copy readme if exists
-        if (Test-Path "README.md") {
-            Copy-Item "README.md" "dist\KafkaCLI\"
         }
 
     - name: Upload Build Artifact
