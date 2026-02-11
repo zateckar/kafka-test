@@ -51,7 +51,7 @@ jobs:
         Copy-Item "build\*.dll" "dist\KafkaCLI\"
         
         # Copy configuration file
-        Copy-Item "kafka_config.ini" "dist\KafkaCLI\"
+        Copy-Item "kafka_cli.ini" "dist\KafkaCLI\"
                 
         # Copy license file if exists
         if (Test-Path "LICENSE") {
